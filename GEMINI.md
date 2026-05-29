@@ -1,52 +1,65 @@
 # AI Fashion Reel Generator (Non-AI MVP)
 
-## Project Vision
-Automate the creation of 9:16 Instagram reels for fashion boutiques using traditional Computer Vision (CV) and Digital Signal Processing (DSP) instead of heavy AI models.
+Automate the creation of 9:16 Instagram reels for fashion boutiques using traditional Computer Vision and DSP.
 
-## Tech Stack
-- **Backend:** FastAPI (Python 3.14+)
-- **Video Engine:** MoviePy (v2.x) + FFmpeg
-- **CV Analysis:** OpenCV (Haar Cascades / Saliency)
-- **Scene Detection:** PySceneDetect
-- **Database:** PostgreSQL (Planned)
-- **Task Queue:** Celery + Redis (Planned for async rendering)
+## 📄 Documentation
+- **[FEATURES.md](./FEATURES.md):** Detailed feature list, technical specification, and workflow diagrams.
 
-## Architecture
-- `backend/app/api`: FastAPI endpoints for uploads and project management.
-- `backend/app/services`: Core logic for video processing, scene detection, and image manipulation.
-- `backend/app/workers`: Background workers for heavy video rendering.
+## 🚀 Launch Instructions
 
-## Development Principles
-1. **Prefer Math over Models:** Use traditional algorithms (Thresholding, FFT, Saliency) to keep the system fast and CPU-friendly.
-2. **Surgical Edits:** Maintain a clean separation between API logic and video processing logic.
-3. **Async First:** Video rendering is expensive; always handle it in background queues.
+To run the full application, you need to start four separate components. Open a new terminal tab for each:
 
-## Current Progress
+### 1. Infrastructure (Redis)
+Ensure Docker Desktop is running, then start the message broker:
+```bash
+docker-compose up -d
+```
+
+### 2. Backend API (FastAPI)
+Starts the web server that handles requests and manages the database:
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --port 8001
+```
+*API will be available at: http://localhost:8001*
+
+### 3. Background Worker (Celery)
+Starts the process that performs the actual video rendering:
+```bash
+cd backend
+celery -A app.workers.celery_app.celery_app worker --loglevel=info
+```
+
+### 5. Run Tests
+Ensure all dependencies are installed, then:
+
+**Backend:**
+```bash
+cd backend
+PYTHONPATH=. pytest tests/
+```
+
+**Frontend:**
+```bash
+cd frontend
+npx vitest run
+```
+
+---
+
+## 🏗️ Project Structure
+- `backend/app/api`: FastAPI endpoints.
+- `backend/app/services`: Core CV and Video logic (OpenCV/MoviePy).
+- `backend/app/workers`: Celery task definitions.
+- `frontend/src`: React components and API integration.
+
+## ✅ Current Progress
 - [x] POC for scene detection and image-to-video generation.
 - [x] Smart-cropping using edge-based saliency.
-- [x] Basic Ken Burns motion effects.
-- [ ] FastAPI structure scaffolding.
-- [ ] S3/Local storage integration.
-
-## Future AI Enhancements (Roadmap)
-While the MVP uses traditional CV for speed and cost, the following AI modules are planned for future integration:
-
-### 1. Advanced Product Analysis (Object Detection)
-- **Tool:** YOLOv8 or MediaPipe.
-- **Goal:** Precisely locate garments, jewelry, and faces to ensure perfect 9:16 centering, even in complex photos.
-
-### 2. High-Fidelity Background Removal
-- **Tool:** Segment Anything Model (SAM) or RMBG-1.4.
-- **Goal:** Automatically remove messy backgrounds and replace them with high-end "Studio" gradients.
-
-### 3. Semantic Scene Matching
-- **Tool:** CLIP (OpenAI).
-- **Goal:** Analyze the "vibe" of a reference scene (e.g., "outdoor sunset") and automatically pick the best matching product image from the user's catalog.
-
-### 4. Automated Captions & Scripting
-- **Tool:** GPT-4o / Gemini 1.5 Pro.
-- **Goal:** Generate trendy, fashion-specific captions and overlays based on the visual features of the product.
-
-### 5. AI Beat Sync
-- **Tool:** Demucs (Audio Source Separation).
-- **Goal:** Isolate the drum/bass track of the reference audio to achieve frame-perfect transition timing.
+- [x] Asynchronous Task Queue (Celery/Redis).
+- [x] Persistent Database (SQLite/SQLAlchemy).
+- [x] Web Dashboard (Frontend).
+- [ ] AI Virtual Try-On (VTON Roadmap).
+- [ ] S3/Cloud storage integration (Currently uses local storage).
+- [ ] AI Background Removal (Roadmap).

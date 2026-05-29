@@ -1,11 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.api import projects
+from app.core.database import engine, Base
+from contextlib import asynccontextmanager
+import os
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Create tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
 
 app = FastAPI(
     title="AI Fashion Reel Generator",
     description="Automated 9:16 reel generation using traditional CV and MoviePy",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan
 )
 
 # Configure CORS
@@ -16,6 +28,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount Static Files
+os.makedirs("data/uploads", exist_ok=True)
+app.mount("/data/uploads", StaticFiles(directory="data/uploads"), name="uploads")
 
 # Include Routers
 app.include_router(projects.router, prefix="/api/projects", tags=["projects"])

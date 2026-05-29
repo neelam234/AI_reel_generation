@@ -2,8 +2,11 @@ fastapi
 uvicorn[standard]
 python-multipart
 pydantic[email]
+pydantic-settings
 sqlalchemy[asyncio]
 aiosqlite
+celery
+redis
 moviepy>=2.0.0
 scenedetect
 opencv-python-headless
