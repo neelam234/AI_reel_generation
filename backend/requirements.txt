@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic[email]
+sqlalchemy[asyncio]
+aiosqlite
+moviepy>=2.0.0
+scenedetect
+opencv-python-headless
+numpy
+python-dotenv
+jinja2
